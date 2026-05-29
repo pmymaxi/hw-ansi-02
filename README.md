@@ -57,12 +57,12 @@ clickhouse:
 
 ## Variables
 
-| Variable              | Description                                 | Default         |
-| --------------------- | ------------------------------------------- | --------------- |
-| `clickhouse_version`  | Версия пакета ClickHouse                    | `22.3.3.44`     |
-| `clickhouse_packages` | Список пакетов ClickHouse                   | смотри vars     |
-| `vector_arch`         | Vector архитектура пакета                   | `x86_64`        |
-| `user_pass`           | Пароль Sudo, сохраненный в in Ansible Vault | vault encrypted |
+| Variable              | Description                              | Default         |
+| --------------------- | ---------------------------------------- | --------------- |
+| `clickhouse_version`  | Версия пакета ClickHouse                 | `22.3.3.44`     |
+| `clickhouse_packages` | Список пакетов ClickHouse                | смотри vars     |
+| `vector_arch`         | Vector архитектура пакета                | `x86_64`        |
+| `user_pass`           | Пароль Sudo, сохраненный в Ansible Vault | vault encrypted |
 
 Пример:
 
