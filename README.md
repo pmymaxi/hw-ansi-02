@@ -9,7 +9,7 @@
 * Vector log collector
 * ClickHouse database `logs`
 * Vector configuration template
-* 
+
 Скрипт предназначен для систем на базе Rocky Linux / RHEL с использованием `dnf`.
 
 ---
