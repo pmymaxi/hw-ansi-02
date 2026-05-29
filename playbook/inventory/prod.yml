@@ -1,0 +1,9 @@
+---
+clickhouse:
+  hosts:
+    clickhouse-01:
+      ansible_host: 192.168.1.207
+      ansible_user: dops
+      ansible_port: 22
+      ansible_ssh_private_key_file: /home/dops/.ssh/id_ed25519
+      ansible_become_pass: "{{ user_pass }}"

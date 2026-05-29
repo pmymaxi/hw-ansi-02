@@ -1,0 +1,85 @@
+---
+- name: Install Clickhouse
+  hosts: clickhouse
+  handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        enabled: true
+        state: restarted
+  tasks:
+    - name: Block clickhouse
+      block:
+        - name: Install yum-utils
+          become: true
+          ansible.builtin.dnf:
+            name:
+              - yum-utils
+        - name: Get clickhouse repo
+          become: true
+          ansible.builtin.yum_repository:
+            name: clickhouse
+            description: ClickHouse Repository
+            baseurl: https://packages.clickhouse.com/rpm/stable/
+            gpgcheck: false
+            enabled: true
+        - name: Install clickhouse packages
+          become: true
+          ansible.builtin.dnf:
+            name:
+              - clickhouse-client-{{ clickhouse_version }}
+              - clickhouse-server-{{ clickhouse_version }}
+          notify: Start clickhouse service
+        - name: Flush handlers
+          ansible.builtin.meta: flush_handlers
+        - name: Wait access port clickhouse
+          ansible.builtin.wait_for:
+            port: 9000
+            host: 127.0.0.1
+            delay: 2
+            timeout: 30
+        - name: Create database
+          ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
+          register: create_db
+          failed_when: create_db.rc != 0 and create_db.rc != 82
+          changed_when: create_db.rc == 0
+- name: Install vector
+  hosts: clickhouse
+  become: true
+  handlers:
+    - name: Start vector
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: restarted
+        enabled: true
+  tasks:
+    - name: Block vector deploy
+      block:
+        - name: Get repo vector
+          become: true
+          ansible.builtin.get_url:
+            url: http://192.168.0.37/sgp-json//vector-0.55.0-1.{{ vector_arch }}.rpm
+            dest: /tmp/vector.rpm
+            mode: "0755"
+            timeout: 30
+        - name: Install vector
+          become: true
+          ansible.builtin.dnf:
+            name: /tmp/vector.rpm
+            state: present
+            disable_gpg_check: true
+        - name: Create dir config vector
+          become: true
+          ansible.builtin.file:
+            path: /opt/.vector/config/
+            state: directory
+            mode: "0775"
+        - name: Past templates
+          become: true
+          ansible.builtin.template:
+            src: templates/vector.yaml
+            dest: /etc/vector/vector.yaml
+            mode: "0755"
+          notify: Start vector
